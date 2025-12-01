@@ -1,68 +1,53 @@
 using System;
+using System.Text;
 
-class Program
+public class Student
 {
-    static void Main(string[] args)
+    private Person dannye;
+    private Education formaObucheniya;
+    private int gruppa;
+    private Exam[] ekzameny;
+
+    public Student(Person d, Education f, int g)
     {
-        Student st = new Student(
-            new Person("Иван", "Иванов", new DateTime(2000, 5, 20)),
-            Education.Bachelor,
-            101
-        );
+        dannye = d;
+        formaObucheniya = f;
+        gruppa = g;
+        ekzameny = new Exam[0];
+    }
 
-        Console.WriteLine(st.ToString());
+    public Student()
+    {
+        dannye = new Person();
+        formaObucheniya = Education.Bachelor;
+        gruppa = 0;
+        ekzameny = new Exam[0];
+    }
 
-        Console.WriteLine(st[Education.Specialist]);
-        Console.WriteLine(st[Education.Bachelor]);
-        Console.WriteLine(st[Education.SecondEducation]);
+    public Person Dannye { get => dannye; set => dannye = value; }
+    public Education FormaObucheniya { get => formaObucheniya; set => formaObucheniya = value; }
+    public int Gruppa { get => gruppa; set => gruppa = value; }
+    public Exam[] Ekzameny { get => ekzameny; set => ekzameny = value; }
 
-        st.DobavitEkzameny(
-            new Exam("Математика", 5, DateTime.Now),
-            new Exam("Физика", 4, DateTime.Now),
-            new Exam("Программирование", 5, DateTime.Now)
-        );
+    public void DobavitEkzameny(params Exam[] novye)
+    {
+        int oldLen = ekzameny.Length;
+        Array.Resize(ref ekzameny, oldLen + novye.Length);
+        for (int i = 0; i < novye.Length; i++)
+            ekzameny[oldLen + i] = novye[i];
+    }
 
-        Console.WriteLine(st.ToString());
+    public bool this[Education form]
+    {
+        get { return formaObucheniya == form; }
+    }
 
-        Console.WriteLine("Введите количество строк и столбцов (разделители: пробел, запятая, точка с запятой):");
-        string input = Console.ReadLine();
-        string[] parts = input.Split(' ', ',', ';');
-        int nrow = int.Parse(parts[0]);
-        int ncol = int.Parse(parts[1]);
-        int total = nrow * ncol;
-
-        Exam[] arr1 = new Exam[total];
-        Exam[,] arr2 = new Exam[nrow, ncol];
-        Exam[][] arr3 = new Exam[nrow][];
-        for (int i = 0; i < nrow; i++) arr3[i] = new Exam[ncol];
-
-        for (int i = 0; i < total; i++) arr1[i] = new Exam();
-        for (int i = 0; i < nrow; i++)
-            for (int j = 0; j < ncol; j++)
-            {
-                arr2[i, j] = new Exam();
-                arr3[i][j] = new Exam();
-            }
-
-        int t1Start = Environment.TickCount;
-        for (int i = 0; i < total; i++) arr1[i].otsenka = 5;
-        int t1End = Environment.TickCount;
-
-        int t2Start = Environment.TickCount;
-        for (int i = 0; i < nrow; i++)
-            for (int j = 0; j < ncol; j++)
-                arr2[i, j].otsenka = 5;
-        int t2End = Environment.TickCount;
-
-        int t3Start = Environment.TickCount;
-        for (int i = 0; i < nrow; i++)
-            for (int j = 0; j < ncol; j++)
-                arr3[i][j].otsenka = 5;
-        int t3End = Environment.TickCount;
-
-        Console.WriteLine($"Количество строк: {nrow}, количество столбцов: {ncol}");
-        Console.WriteLine($"Одномерный массив: {t1End - t1Start} мс");
-        Console.WriteLine($"Двумерный прямоугольный массив: {t2End - t2Start} мс");
-        Console.WriteLine($"Ступенчатый массив: {t3End - t3Start} мс");
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine(dannye.ToString());
+        sb.AppendLine($"Форма обучения: {formaObucheniya}, группа: {gruppa}");
+        foreach (var ex in ekzameny) sb.AppendLine(ex.ToString());
+        return sb.ToString();
     }
 }
