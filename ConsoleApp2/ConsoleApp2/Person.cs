@@ -2,20 +2,30 @@
 
 public class Person
 {
-    public string Name { get; set; }
-    public string Last { get; set; }
-    public DateTime Birth { get; set; }
-    public Person(string name, string last, DateTime birth)
+    private string imya;
+    private string familiya;
+    private DateTime dataRozhdeniya;
+
+    public Person(string i, string f, DateTime d)
     {
-        Name = name;
-        Last = last;
-        Birth = birth;
+        imya = i;
+        familiya = f;
+        dataRozhdeniya = d;
     }
-    public Person() : this("Nikita", "Arseniy", new DateTime(2007, 08, 29))
+
+    public Person()
     {
+        imya = "Imya";
+        familiya = "Familiya";
+        dataRozhdeniya = new DateTime(2000, 1, 1);
     }
+
+    public string Imya { get => imya; set => imya = value; }
+    public string Familiya { get => familiya; set => familiya = value; }
+    public DateTime DataRozhdeniya { get => dataRozhdeniya; set => dataRozhdeniya = value; }
+
     public override string ToString()
     {
-        return Name + " " + Last + " " + Birth.ToShortDateString();
+        return $"{imya} {familiya}, {dataRozhdeniya.ToShortDateString()}";
     }
 }

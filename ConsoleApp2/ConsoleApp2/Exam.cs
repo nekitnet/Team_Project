@@ -2,23 +2,26 @@
 
 public class Exam
 {
-    public string Subj { get; set; }
-    public int Mark { get; set; }
-    public DateTime Date { get; set; }
+    public string predmet { get; set; }
+    public int otsenka { get; set; }
+    public DateTime data { get; set; }
 
-    public Exam(string subj, int mark, DateTime date)
+    public Exam(string p, int o, DateTime d)
     {
-        Subj = subj;
-        Mark = mark;
-        Date = date;
+        predmet = p;
+        otsenka = o;
+        data = d;
     }
 
-    public Exam() : this("Test2", 5, new DateTime(2025, 11, 30))
+    public Exam()
     {
+        predmet = "Predmet";
+        otsenka = 0;
+        data = DateTime.Now;
     }
 
     public override string ToString()
     {
-        return Subj + " " + Mark + " " + Date.ToShortDateString();
+        return $"{predmet}, {otsenka}, {data.ToShortDateString()}";
     }
 }
