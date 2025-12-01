@@ -1,0 +1,68 @@
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Student st = new Student(
+            new Person("Иван", "Иванов", new DateTime(2000, 5, 20)),
+            Education.Bachelor,
+            101
+        );
+
+        Console.WriteLine(st.ToString());
+
+        Console.WriteLine(st[Education.Specialist]);
+        Console.WriteLine(st[Education.Bachelor]);
+        Console.WriteLine(st[Education.SecondEducation]);
+
+        st.DobavitEkzameny(
+            new Exam("Математика", 9, DateTime.Now),
+            new Exam("Физика", 9, DateTime.Now),
+            new Exam("Программирование", 7, DateTime.Now)
+        );
+
+        Console.WriteLine(st.ToString());
+
+        Console.WriteLine("Введите количество строк и столбцов (разделители: пробел, запятая, точка с запятой):");
+        string input = Console.ReadLine();
+        string[] parts = input.Split(' ', ',', ';');
+        int nrow = int.Parse(parts[0]);
+        int ncol = int.Parse(parts[1]);
+        int total = nrow * ncol;
+
+        Exam[] arr1 = new Exam[total];
+        Exam[,] arr2 = new Exam[nrow, ncol];
+        Exam[][] arr3 = new Exam[nrow][];
+        for (int i = 0; i < nrow; i++) arr3[i] = new Exam[ncol];
+
+        for (int i = 0; i < total; i++) arr1[i] = new Exam();
+        for (int i = 0; i < nrow; i++)
+            for (int j = 0; j < ncol; j++)
+            {
+                arr2[i, j] = new Exam();
+                arr3[i][j] = new Exam();
+            }
+
+        int t1Start = Environment.TickCount;
+        for (int i = 0; i < total; i++) arr1[i].otsenka = 5;
+        int t1End = Environment.TickCount;
+
+        int t2Start = Environment.TickCount;
+        for (int i = 0; i < nrow; i++)
+            for (int j = 0; j < ncol; j++)
+                arr2[i, j].otsenka = 5;
+        int t2End = Environment.TickCount;
+
+        int t3Start = Environment.TickCount;
+        for (int i = 0; i < nrow; i++)
+            for (int j = 0; j < ncol; j++)
+                arr3[i][j].otsenka = 5;
+        int t3End = Environment.TickCount;
+
+        Console.WriteLine($"Количество строк: {nrow}, количество столбцов: {ncol}");
+        Console.WriteLine($"Одномерный массив: {t1End - t1Start} мс");
+        Console.WriteLine($"Двумерный прямоугольный массив: {t2End - t2Start} мс");
+        Console.WriteLine($"Ступенчатый массив: {t3End - t3Start} мс");
+    }
+}
