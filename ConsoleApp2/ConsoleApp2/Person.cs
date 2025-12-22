@@ -28,4 +28,9 @@ public class Person
     {
         return $"{imya} {familiya}, {dataRozhdeniya.ToShortDateString()}";
     }
+    
+    public string ToShortString()
+    {
+        return $"{Imya} {Familiya}";
+    }
 }
