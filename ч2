@@ -1,0 +1,283 @@
+using System;
+using System.Collections;
+using System.Text;
+
+interface IDateAndCopy
+{
+    object DeepCopy();
+    DateTime Date { get; set; }
+}
+
+enum Education
+{
+    Bachelor,
+    Specialist,
+    Master
+}
+
+class Exam : IDateAndCopy
+{
+    public string Subject { get; set; }
+    public int Grade { get; set; }
+    public DateTime Date { get; set; }
+
+    public Exam() { Subject = ""; Grade = 0; Date = DateTime.MinValue; }
+
+    public Exam(string subject, int grade, DateTime date)
+    {
+        Subject = subject;
+        Grade = grade;
+        Date = date;
+    }
+
+    public object DeepCopy()
+    {
+        return new Exam(Subject, Grade, Date);
+    }
+
+    public override string ToString()
+    {
+        return $"{Subject}, {Grade}, {Date:yyyy-MM-dd}";
+    }
+}
+
+class Person : IDateAndCopy
+{
+    protected string firstName;
+    protected string lastName;
+    protected DateTime birthDate;
+
+    public string FirstName
+    {
+        get { return firstName; }
+        set { firstName = value; }
+    }
+
+    public string LastName
+    {
+        get { return lastName; }
+        set { lastName = value; }
+    }
+
+    public DateTime BirthDate
+    {
+        get { return birthDate; }
+        set { birthDate = value; }
+    }
+
+    public DateTime Date
+    {
+        get { return birthDate; }
+        set { birthDate = value; }
+    }
+
+    public Person() { firstName = ""; lastName = ""; birthDate = DateTime.MinValue; }
+
+    public Person(string firstName, string lastName, DateTime birthDate)
+    {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthDate = birthDate;
+    }
+
+    public virtual object DeepCopy()
+    {
+        return new Person(firstName, lastName, birthDate);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj is Person other)
+            return firstName == other.firstName && lastName == other.lastName && birthDate == other.birthDate;
+        return false;
+    }
+
+    public static bool operator ==(Person a, Person b)
+    {
+        if (ReferenceEquals(a, b)) return true;
+        if ((object)a == null || (object)b == null) return false;
+        return a.Equals(b);
+    }
+
+    public static bool operator !=(Person a, Person b)
+    {
+        return !(a == b);
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            int h = 17;
+            h = h * 31 + (firstName == null ? 0 : firstName.GetHashCode());
+            h = h * 31 + (lastName == null ? 0 : lastName.GetHashCode());
+            h = h * 31 + birthDate.GetHashCode();
+            return h;
+        }
+    }
+
+    public override string ToString()
+    {
+        return $"{firstName} {lastName}, {birthDate:yyyy-MM-dd}";
+    }
+}
+
+class Test
+{
+    public string Name { get; set; }
+    public bool Passed { get; set; }
+
+    public Test() { Name = "Test"; Passed = false; }
+
+    public Test(string name, bool passed)
+    {
+        Name = name;
+        Passed = passed;
+    }
+
+    public override string ToString()
+    {
+        return $"{Name}, Passed: {Passed}";
+    }
+}
+
+class Student : Person
+{
+    private Education education;
+    private int group;
+    private ArrayList tests;
+    private ArrayList exams;
+
+    public Student() : base()
+    {
+        education = Education.Bachelor;
+        group = 0;
+        tests = new ArrayList();
+        exams = new ArrayList();
+    }
+
+    public Student(Person p, Education education, int group) : base(p.FirstName, p.LastName, p.BirthDate)
+    {
+        this.education = education;
+        this.group = group;
+        tests = new ArrayList();
+        exams = new ArrayList();
+    }
+
+    public Person Person
+    {
+        get { return new Person(firstName, lastName, birthDate); }
+        set
+        {
+            if (value == null) return;
+            firstName = value.FirstName;
+            lastName = value.LastName;
+            birthDate = value.BirthDate;
+        }
+    }
+
+    public Education Education
+    {
+        get { return education; }
+        set { education = value; }
+    }
+
+    public int Group
+    {
+        get { return group; }
+        set { group = value; }
+    }
+
+    public ArrayList Exams
+    {
+        get { return exams; }
+        set { exams = value ?? new ArrayList(); }
+    }
+
+    public ArrayList Tests
+    {
+        get { return tests; }
+        set { tests = value ?? new ArrayList(); }
+    }
+
+    public double AverageGrade
+    {
+        get
+        {
+            if (exams == null || exams.Count == 0) return 0.0;
+            int sum = 0;
+            int cnt = 0;
+            foreach (object o in exams)
+            {
+                Exam e = o as Exam;
+                if (e != null)
+                {
+                    sum += e.Grade;
+                    cnt++;
+                }
+            }
+            return cnt == 0 ? 0.0 : (double)sum / cnt;
+        }
+    }
+
+    public void AddExams(params Exam[] items)
+    {
+        if (items == null) return;
+        foreach (var e in items) exams.Add(e);
+    }
+
+    public override object DeepCopy()
+    {
+        var copy = new Student(new Person(firstName, lastName, birthDate), education, group);
+        var testsCopy = new ArrayList();
+        foreach (object o in tests)
+        {
+            Test t = o as Test;
+            if (t != null) testsCopy.Add(new Test(t.Name, t.Passed));
+        }
+        var examsCopy = new ArrayList();
+        foreach (object o in exams)
+        {
+            Exam e = o as Exam;
+            if (e != null) examsCopy.Add(e.DeepCopy());
+        }
+        copy.Tests = testsCopy;
+        copy.Exams = examsCopy;
+        return copy;
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"{FirstName} {LastName}, {BirthDate:yyyy-MM-dd}, {education}, Group {group}");
+        sb.AppendLine("Tests:");
+        foreach (object o in tests) sb.AppendLine(o.ToString());
+        sb.AppendLine("Exams:");
+        foreach (object o in exams) sb.AppendLine(o.ToString());
+        return sb.ToString();
+    }
+
+    public virtual string ToShortString()
+    {
+        return $"{FirstName} {LastName}, {BirthDate:yyyy-MM-dd}, {education}, Group {group}, Avg: {AverageGrade:F2}";
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var p = new Person("Ivan", "Petrov", new DateTime(2002, 5, 12));
+        var s = new Student(p, Education.Bachelor, 102);
+        s.Tests = new ArrayList { new Test("Math", true), new Test("Physics", false) };
+        s.AddExams(new Exam("Math", 8, DateTime.Today), new Exam("Physics", 7, DateTime.Today));
+        Console.WriteLine(s.ToShortString());
+        Console.WriteLine(s.ToString());
+
+        var s2 = (Student)s.DeepCopy();
+        Console.WriteLine(s2.ToShortString());
+        Console.WriteLine(p == s.Person);
+        Console.WriteLine(p.Equals(s.Person));
+    }
+}
